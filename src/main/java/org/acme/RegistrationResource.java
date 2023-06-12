@@ -10,6 +10,7 @@ import java.util.List;
 public class RegistrationResource {
     private static List<User> users = new ArrayList<>();
 
+
     @POST
     @Path("/register")
     @Produces(MediaType.APPLICATION_JSON)
@@ -33,6 +34,30 @@ public class RegistrationResource {
         return Response.ok("Registro exitoso").build();
     }
 
+    @DELETE
+    @Path("/delete")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteUser(UserLoginRequest request) {
+
+        User user = getUserByUsername(request.getUsername());
+
+        if (user == null) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("usuario no existe")
+                    .build();
+        }
+        if (!user.getPassword().equals(request.getPassword())) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("contraseña no valida")
+                    .build();
+        }
+
+        String message = "Usuario eliminado: " + user.getUsername();
+        users.remove(user);
+
+        return Response.ok(message).build();
+    }
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
