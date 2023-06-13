@@ -3,9 +3,9 @@ package org.acme;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
 import java.util.ArrayList;
 import java.util.List;
+
 @Path("/app")
 public class RegistrationResource {
     private static List<User> users = new ArrayList<>();
@@ -73,6 +73,24 @@ public class RegistrationResource {
 
         UserLoginResponse response = new UserLoginResponse(user.getUsername());
         return Response.ok(response).build();
+    }
+
+    @POST
+    @Path("/restore")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response RestablecerContraseña(UserLoginRequest request) {
+        if (isUsernameAvailable(request.getUsername()) || request.getUsername() == null) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("El usuario no existe.").build();
+        }
+        User user = getUserByUsername(request.getUsername());
+        if(request.getPassword()==user.getPassword() || request.getPassword() == null){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("La contraseña no debe ser la misma.").build();
+        }
+        user.setPassword(request.getPassword());
+        return Response.ok(user.getUsername()).build();
     }
 
     private User getUserByUsername(String username) {
